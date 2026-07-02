@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice - BrainyMed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=1.1">
+</head>
+<body class="light-theme">
+  <!-- Interactive Control Panel (Hidden in Print) -->
+  <header class="app-header">
+    <div class="header-logo">
+      <img src="logo.png" alt="BrainyMed Logo" style="height: 28px; display: block;">
+      <span style="font-family: var(--font-title); font-size: 1.1rem; color: var(--text-muted); font-weight: 500; margin-left: 0.5rem; border-left: 1px solid var(--border-panel); padding-left: 0.75rem;">Invoice Hub</span>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" class="btn btn-secondary" title="Toggle Light/Dark Mode">
+        <span class="icon sun-icon">☀️</span>
+        <span class="icon moon-icon">🌙</span>
+        <span class="btn-text">Dark Mode</span>
+      </button>
+      <button id="open-settings-btn" class="btn btn-secondary" title="Open Settings Hub">
+        <span class="icon">⚙️</span>
+        <span class="btn-text">Settings Hub</span>
+      </button>
+      <button id="mode-toggle" class="btn btn-secondary">
+        <span class="icon">✏️</span>
+        <span class="btn-text">Edit Mode</span>
+      </button>
+      <button id="print-btn" class="btn btn-primary">
+        <span class="icon">🖨️</span>
+        <span>Print & Save PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="app-layout">
+    <div class="invoice-container">
+      <div id="invoice-sheet" class="invoice-sheet">
+        <!-- Watermark / Decorative element (Screen Only) -->
+        <div class="invoice-background-decor"></div>
+
+        <!-- Invoice Header -->
+        <div class="invoice-header">
+          <div class="company-branding">
+            <div class="invoice-logo">
+              <img src="logo.png" alt="BrainyMed Logo" style="height: 44px; display: block;">
+            </div>
+            <div class="company-details">
+              <p class="company-name" contenteditable="true" data-placeholder="Company Name"></p>
+              <p contenteditable="true" data-placeholder="Address Line 1"></p>
+              <p contenteditable="true" data-placeholder="Address Line 2"></p>
+              <p contenteditable="true" data-placeholder="Contact / Email"></p>
+            </div>
+          </div>
+
+          <div class="invoice-meta">
+            <div class="invoice-title">INVOICE</div>
+            <div class="meta-grid">
+              <div class="meta-label">Invoice #</div>
+              <div class="meta-value highlight" id="invoice-no-val" contenteditable="true">BM-2026-0042</div>
+
+              <div class="meta-label">Issue Date</div>
+              <div class="meta-value" id="invoice-date-val">Jul 2, 2026</div>
+
+              <div class="meta-label">Due Date</div>
+              <div class="meta-value" id="due-date-val">Aug 1, 2026</div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Bill To Section -->
+        <div class="invoice-bill-to">
+          <div class="bill-section">
+            <h3 class="section-title">Client Billing Information</h3>
+            <div class="client-details">
+              <p class="client-name" contenteditable="true" data-placeholder="Client Name"></p>
+              <p contenteditable="true" data-placeholder="Attention / Department"></p>
+              <p contenteditable="true" data-placeholder="Address Line 1"></p>
+              <p contenteditable="true" data-placeholder="Address Line 2"></p>
+              <p contenteditable="true" data-placeholder="Client Email"></p>
+            </div>
+          </div>
+          <div class="status-badge-container hidden" id="status-badge-box">
+            <div class="status-badge" contenteditable="true">PROMOTIONAL OFFER ACTIVE</div>
+          </div>
+        </div>
+
+        <!-- LINE ITEMS -->
+        <div class="invoice-body">
+          
+          <!-- Category: Hardware -->
+          <div class="invoice-section" id="section-hardware">
+            <div class="section-header">
+              <h4 class="category-title">1. Hardware Package</h4>
+              <span class="custom-badge">Hardware Total: <span id="hardware-total-header">$2,400.00</span></span>
+            </div>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th class="col-desc">Description</th>
+                  <th class="col-qty text-center">Qty</th>
+                  <th class="col-amount text-right">Amount</th>
+                  <th class="col-action print-hidden"></th>
+                </tr>
+              </thead>
+              <tbody id="hardware-items-body">
+                <!-- Hardware items will be rendered dynamically -->
+              </tbody>
+            </table>
+            <div class="hardware-package-total text-right">
+              <span>Hardware Package Value:</span>
+              <span id="hardware-total-val" class="package-price" contenteditable="true">$2,400.00</span>
+            </div>
+          </div>
+
+          <!-- Category: Professional Services -->
+          <div class="invoice-section" id="section-services">
+            <div class="section-header">
+              <h4 class="category-title">2. Professional Services</h4>
+              <span class="custom-badge">Services Total: <span id="services-total-header">$2,200.00</span></span>
+            </div>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th class="col-desc">Description</th>
+                  <th class="col-qty text-center">Hours</th>
+                  <th class="col-amount text-right">Amount</th>
+                  <th class="col-action print-hidden"></th>
+                </tr>
+              </thead>
+              <tbody id="services-items-body">
+                <!-- Services items will be rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Category: Additional Support -->
+          <div class="invoice-section" id="section-support">
+            <div class="section-header">
+              <h4 class="category-title">3. Additional Support &amp; Configuration</h4>
+              <span class="custom-badge">Support Total: <span id="support-total-header">$240.00</span></span>
+            </div>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th class="col-desc">Description</th>
+                  <th class="col-qty text-center">Qty</th>
+                  <th class="col-amount text-right">Amount</th>
+                  <th class="col-action print-hidden"></th>
+                </tr>
+              </thead>
+              <tbody id="support-items-body">
+                <!-- Support items will be rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Category: Software Subscriptions -->
+          <div class="invoice-section" id="section-software">
+            <div class="section-header">
+              <h4 class="category-title">4. Software Subscription (30-Day Promotional Offer)</h4>
+              <span class="custom-badge promo-badge">30 Days Promo Active</span>
+            </div>
+            <div class="promo-callout">
+              <p><strong>Promotional Offer:</strong> The BrainyMed Application and Kiosk Software are provided free for the first 30 days. After 30 days, monthly billing will begin automatically: <strong>BrainyMed Application: $500/month</strong>, <strong>Kiosk Software: $299/month</strong>. Total recurring: <strong>$799/month</strong>.</p>
+            </div>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th class="col-desc">Description</th>
+                  <th class="col-rate text-right">Today's Charge</th>
+                  <th class="col-amount text-right">Discount</th>
+                  <th class="col-action print-hidden"></th>
+                </tr>
+              </thead>
+              <tbody id="software-items-body">
+                <!-- Software items will be rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- Invoice Summary & Totals -->
+        <div class="invoice-footer-grid">
+          <div class="payment-notes">
+            <div id="payment-methods-box" class="payment-methods hidden">
+              <div class="method-title">How to Pay:</div>
+              <p id="payment-wire-text"><strong>Wire Transfer:</strong> Routing: #######, Account: ########</p>
+              <p id="payment-online-text"><strong>Online:</strong> Pay via Stripe Credit Card link at billing.brainymed.com/pay</p>
+            </div>
+            
+            <div class="terms-conditions-box">
+              <div class="method-title" contenteditable="true">Terms & Conditions:</div>
+              <p contenteditable="true" style="font-size: 0.8rem; line-height: 1.5; color: var(--text-secondary); margin-top: 0.4rem; text-align: left;">All invoices are due net 30. Payments can be made via check, wire transfer, or credit card. Late payments may accrue interest at 1.5% per month. Terms are subject to agreement.</p>
+            </div>
+          </div>
+
+          <div class="totals-section">
+            <table class="totals-table">
+              <tbody>
+                <tr>
+                  <th>Hardware Package:</th>
+                  <td id="subtotal-hardware">$2,400.00</td>
+                </tr>
+                <tr>
+                  <th>Professional Services:</th>
+                  <td id="subtotal-services">$2,200.00</td>
+                </tr>
+                <tr>
+                  <th>Additional Support:</th>
+                  <td id="subtotal-support">$240.00</td>
+                </tr>
+                <tr>
+                  <th>Software Today (Discounted):</th>
+                  <td id="subtotal-software">$0.00</td>
+                </tr>
+                <tr class="discount-row">
+                  <th>First Month Software Discount:</th>
+                  <td id="software-discount">-$799.00</td>
+                </tr>
+                <tr class="discount-row" id="row-item-discounts" style="display: none;">
+                  <th>Item Discounts (Struck Off):</th>
+                  <td id="item-discounts-val">-$0.00</td>
+                </tr>
+                <tr>
+                  <th>Tax (8.25%):</th>
+                  <td id="tax-amount">$0.00</td>
+                </tr>
+                <tr class="grand-total-row">
+                  <th>TOTAL AMOUNT DUE:</th>
+                  <td id="grand-total">$5,251.40</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Signature Lines -->
+        <div class="signature-section">
+          <div class="signature-box">
+            <div class="sig-line"></div>
+            <p>Authorized Signature (BrainyMed)</p>
+          </div>
+          <div class="signature-box">
+            <div class="sig-line"></div>
+            <p>Client Acceptance Signature</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Spacious Invoice Settings Hub Modal -->
+  <dialog id="settings-dialog" class="settings-dialog">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <span>⚙️</span> Invoice Settings Hub
+        </div>
+        <button id="close-settings-btn" class="dialog-close-btn">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <!-- Left Navigation Tabs -->
+        <div class="dialog-tabs">
+          <button class="tab-btn active" data-tab="tab-general">📄 General Info</button>
+          <button class="tab-btn" data-tab="tab-items">📦 Manage Items</button>
+          <button class="tab-btn" data-tab="tab-payment">💳 Bank & Payments</button>
+          <button class="tab-btn" data-tab="tab-versions">💾 Saved Versions</button>
+        </div>
+        <!-- Right Settings Forms -->
+        <div class="dialog-tab-content">
+          
+          <!-- Tab 1: General Info -->
+          <div id="tab-general" class="tab-panel active">
+            <h3>Invoice Details</h3>
+            <div class="form-group">
+              <label for="input-invoice-number">Invoice Number</label>
+              <input type="text" id="input-invoice-number" value="BM-2026-0042">
+            </div>
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="input-invoice-date">Invoice Date</label>
+                <input type="date" id="input-invoice-date" value="2026-07-02">
+              </div>
+              <div class="form-group col">
+                <label for="input-due-date">Due Date</label>
+                <input type="date" id="input-due-date" value="2026-08-01">
+              </div>
+            </div>
+            <div class="form-group checkbox-group" style="margin-top: 1rem;">
+              <input type="checkbox" id="input-show-status">
+              <label for="input-show-status">Show Status Badge</label>
+            </div>
+          </div>
+
+          <!-- Tab 2: Manage Items -->
+          <div id="tab-items" class="tab-panel">
+            <h3>Quick Add Item</h3>
+            <div class="form-group">
+              <label for="add-category">Category</label>
+              <select id="add-category">
+                <option value="hardware">Hardware</option>
+                <option value="services">Professional Services</option>
+                <option value="support">Additional Support</option>
+                <option value="software">Software Subscription</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="add-desc">Description</label>
+              <input type="text" id="add-desc" placeholder="e.g. Card Reader Mounting Bracket">
+            </div>
+            <div class="form-group">
+              <label for="add-subdesc">Mini Description (Optional)</label>
+              <input type="text" id="add-subdesc" placeholder="e.g. 10.9-inch Display, Wi-Fi">
+            </div>
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="add-qty">Qty / Hours</label>
+                <input type="number" id="add-qty" value="1" min="1">
+              </div>
+              <div class="form-group col">
+                <label id="price-label" for="add-price">Price / Rate ($)</label>
+                <input type="number" id="add-price" value="100" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group checkbox-group" id="promo-checkbox-container" style="display: none; margin-top: 0.5rem;">
+              <input type="checkbox" id="add-is-promo" checked>
+              <label for="add-is-promo">30-Day Promo (First Month Free)</label>
+            </div>
+            <button id="add-item-btn" class="btn btn-accent btn-full" style="margin-top: 1rem;">
+              <span>Add Item to Invoice</span>
+            </button>
+
+            <!-- Create Custom Category Section -->
+            <div style="margin-top: 2rem; border-top: 1px solid var(--border-panel); padding-top: 1.5rem;">
+              <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Create Custom Category</h3>
+              <div class="form-row" style="align-items: flex-end;">
+                <div class="form-group col" style="margin-bottom: 0;">
+                  <label for="new-category-name">New Category Name</label>
+                  <input type="text" id="new-category-name" placeholder="e.g. 5. Shipping & Handling">
+                </div>
+                <button id="add-category-btn" class="btn btn-secondary" style="height: 42px;">
+                  <span>Create Category</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Bank & Payments -->
+          <div id="tab-payment" class="tab-panel">
+            <h3>Payment & Banking Settings</h3>
+            <div class="form-group checkbox-group">
+              <input type="checkbox" id="input-show-payment">
+              <label for="input-show-payment">Display Payment Options on Invoice</label>
+            </div>
+            <div id="payment-details-inputs" style="display: none; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+              <div class="form-group">
+                <label for="input-payment-wire">Wire Transfer Info</label>
+                <input type="text" id="input-payment-wire" value="Routing: #######, Account: ########">
+              </div>
+              <div class="form-group">
+                <label for="input-payment-online">Online Payment URL</label>
+                <input type="text" id="input-payment-online" value="billing.brainymed.com/pay">
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 4: Saved Versions -->
+          <div id="tab-versions" class="tab-panel">
+            <h3>Invoice History & Drafts</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Save full drafts of your current invoice configuration to switch between versions.
+            </p>
+            <button id="save-version-btn" class="btn btn-secondary btn-full" style="margin-bottom: 1.5rem;">
+               <span>💾 Save Current Version</span>
+            </button>
+            <div id="versions-container">
+              <p id="no-versions-text" class="no-versions-text" style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">No saved versions yet.</p>
+              <ul id="versions-list" style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- Dynamic versions render here -->
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button id="save-close-settings-btn" class="btn btn-primary">Save & Apply Settings</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="script.js?v=1.1"></script>
+</body>
+</html>

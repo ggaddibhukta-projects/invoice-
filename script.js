@@ -16,7 +16,9 @@ const invoiceData = {
   hardwarePackagePrice: 0.00,
   services: [],
   support: [],
-  software: []
+  software: [],
+  deletedCategories: [],
+  customTitles: {}
 };
 
 // UI Toggles & Constants
@@ -158,6 +160,26 @@ function syncDatesFromInputs() {
 
 // Render dynamic tables
 function renderAllTables() {
+  const defaultSections = ['hardware', 'services', 'support', 'software'];
+  defaultSections.forEach(id => {
+    const el = document.getElementById(`section-${id}`);
+    if (el) {
+      if (invoiceData.deletedCategories.includes(id)) {
+        el.classList.add('blank-template-hide');
+      } else {
+        el.classList.remove('blank-template-hide');
+      }
+      
+      // Apply custom title if set
+      if (invoiceData.customTitles[id]) {
+        const titleEl = el.querySelector('.category-title');
+        if (titleEl) {
+          titleEl.textContent = invoiceData.customTitles[id];
+        }
+      }
+    }
+  });
+
   renderHardwareTable();
   renderServicesTable();
   renderSupportTable();
@@ -356,8 +378,11 @@ function renderCustomCategories() {
         sec.id = `section-${cat.id}`;
         sec.innerHTML = `
           <div class="section-header">
-            <h4 class="category-title">${cat.name}</h4>
-            <span class="custom-badge">${cat.name.replace(/^\d+\.\s*/, '')} Total: <span id="${cat.id}-total-header">$0.00</span></span>
+            <h4 class="category-title editable-category-title" data-cat-id="${cat.id}" contenteditable="${isEditMode}">${cat.name}</h4>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <span class="custom-badge">${cat.name.replace(/^\d+\.\s*/, '')} Total: <span id="${cat.id}-total-header">$0.00</span></span>
+              <button class="btn-danger-outline print-hidden edit-only-inline" onclick="deleteCategory('${cat.id}')" title="Delete Category" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">🗑️</button>
+            </div>
           </div>
           <table class="items-table">
             <thead>
@@ -421,37 +446,89 @@ function renderCustomCategories() {
   });
 }
 
+let categoryToDelete = null;
+
+window.deleteCategory = function(catId) {
+  categoryToDelete = catId;
+  const dialog = document.getElementById('delete-category-dialog');
+  if (dialog) dialog.showModal();
+};
+
+function performDeleteCategory() {
+  if (!categoryToDelete) return;
+  const catId = categoryToDelete;
+  const defaultCats = ['hardware', 'services', 'support', 'software'];
+  
+  if (defaultCats.includes(catId)) {
+    if (!invoiceData.deletedCategories.includes(catId)) {
+      invoiceData.deletedCategories.push(catId);
+    }
+    invoiceData[catId] = [];
+    if (catId === 'hardware') invoiceData.hardwarePackagePrice = 0;
+  } else {
+    // Remove from invoiceData.categories array
+    invoiceData.categories = invoiceData.categories.filter(c => c.id !== catId);
+    
+    // Clear out any items in that category from the state
+    if (invoiceData[catId]) {
+      delete invoiceData[catId];
+    }
+    
+    // Remove the HTML section
+    const sec = document.getElementById(`section-${catId}`);
+    if (sec) sec.remove();
+  }
+  
+  // Re-render
+  populateCategoryDropdown();
+  renderAllTables();
+  calculateTotals();
+  
+  categoryToDelete = null;
+  const dialog = document.getElementById('delete-category-dialog');
+  if (dialog) dialog.close();
+}
+
 function renderTotalsTable(subtotalToday, taxAmount, grandTotal, softwareTotalPromoDiscount, itemDiscountsTotal) {
   const tbody = document.querySelector('.totals-table tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
-  const hardwareTotal = invoiceData.hardwarePackagePrice;
-  const trHard = document.createElement('tr');
-  trHard.innerHTML = `<th>Hardware Package:</th><td id="subtotal-hardware">${formatCurrency(hardwareTotal)}</td>`;
-  tbody.appendChild(trHard);
-  
-  // 2. Services
-  const servicesOriginal = invoiceData.services.reduce((sum, item) => sum + (item.qty * item.rate), 0);
-  const trServ = document.createElement('tr');
-  trServ.innerHTML = `<th>Professional Services:</th><td id="subtotal-services">${formatCurrency(servicesOriginal)}</td>`;
-  tbody.appendChild(trServ);
-  
-  // 3. Support
-  const supportOriginal = invoiceData.support.reduce((sum, item) => sum + (item.qty * item.rate), 0);
-  const trSupp = document.createElement('tr');
-  trSupp.innerHTML = `<th>Additional Support:</th><td id="subtotal-support">${formatCurrency(supportOriginal)}</td>`;
-  tbody.appendChild(trSupp);
-  
-  // 4. Software
-  let softwareTotalToday = 0;
-  invoiceData.software.forEach(item => {
-    if (!item.isPromo && !item.isDiscounted) {
-      softwareTotalToday += item.qty * item.rate;
+  // 1. Hardware
+  if (!invoiceData.deletedCategories.includes('hardware')) {
+    const hardwareTotal = invoiceData.hardwarePackagePrice;
+    const trHard = document.createElement('tr');
+    trHard.innerHTML = `<th>${invoiceData.customTitles['hardware'] || 'Hardware Package'}:</th><td id="subtotal-hardware">${formatCurrency(hardwareTotal)}</td>`;
+    tbody.appendChild(trHard);
+  }
+    
+    // 2. Services
+    if (!invoiceData.deletedCategories.includes('services')) {
+      const servicesOriginal = invoiceData.services.reduce((sum, item) => sum + (item.qty * item.rate), 0);
+      const trServ = document.createElement('tr');
+      trServ.innerHTML = `<th>${invoiceData.customTitles['services'] || 'Professional Services'}:</th><td id="subtotal-services">${formatCurrency(servicesOriginal)}</td>`;
+      tbody.appendChild(trServ);
     }
-  });
-  const trSoft = document.createElement('tr');
-  trSoft.innerHTML = `<th>Software Today (Discounted):</th><td id="subtotal-software">${formatCurrency(softwareTotalToday)}</td>`;
-  tbody.appendChild(trSoft);
+    
+    // 3. Support
+    if (!invoiceData.deletedCategories.includes('support')) {
+      const supportOriginal = invoiceData.support.reduce((sum, item) => sum + (item.qty * item.rate), 0);
+      const trSupp = document.createElement('tr');
+      trSupp.innerHTML = `<th>${invoiceData.customTitles['support'] || 'Additional Support'}:</th><td id="subtotal-support">${formatCurrency(supportOriginal)}</td>`;
+      tbody.appendChild(trSupp);
+    }
+    
+    // 4. Software
+    if (!invoiceData.deletedCategories.includes('software')) {
+      let softwareTotalToday = 0;
+      invoiceData.software.forEach(item => {
+        if (!item.isPromo && !item.isDiscounted) {
+          softwareTotalToday += item.qty * item.rate;
+        }
+      });
+    const trSoft = document.createElement('tr');
+    trSoft.innerHTML = `<th>${invoiceData.customTitles['software'] || 'Software Today (Discounted)'}:</th><td id="subtotal-software">${formatCurrency(softwareTotalToday)}</td>`;
+    tbody.appendChild(trSoft);
+  }
   
   // 5. Custom Categories
   invoiceData.categories.forEach(cat => {
@@ -670,7 +747,7 @@ function setupEventListeners() {
     }
   });
 
-  // Edit/Preview Mode Toggle
+    // Edit/Preview Mode Toggle
   modeToggleBtn.addEventListener('click', () => {
     isEditMode = !isEditMode;
     if (isEditMode) {
@@ -680,6 +757,12 @@ function setupEventListeners() {
       bodyEl.classList.remove('edit-active');
       modeToggleBtn.setAttribute('title', 'Switch to Edit Mode');
     }
+    
+    // Toggle contenteditable on custom category titles
+    document.querySelectorAll('.editable-category-title').forEach(el => {
+      el.setAttribute('contenteditable', isEditMode);
+    });
+    
     renderAllTables();
   });
 
@@ -809,6 +892,22 @@ function setupEventListeners() {
       
       renderAllTables();
       calculateTotals();
+    } else if (target.classList.contains('editable-category-title')) {
+      const catId = target.dataset.catId;
+      const val = target.textContent.trim() || 'Untitled Category';
+      const defaultCats = ['hardware', 'services', 'support', 'software'];
+      
+      if (defaultCats.includes(catId)) {
+        invoiceData.customTitles[catId] = val;
+        renderAllTables();
+      } else {
+        const catObj = invoiceData.categories.find(c => c.id === catId);
+        if (catObj) {
+          catObj.name = val;
+          populateCategoryDropdown();
+          renderAllTables();
+        }
+      }
     } else if (target.id === 'hardware-total-val') {
       const parsed = parseCurrencyString(target.textContent);
       invoiceData.hardwarePackagePrice = parsed;
@@ -821,6 +920,33 @@ function setupEventListeners() {
   if (openSettingsBtn && settingsDialog) {
     openSettingsBtn.addEventListener('click', () => {
       settingsDialog.showModal();
+    });
+  }
+
+  // Inline Add New Category (Instant)
+  const inlineAddCategoryBtn = document.getElementById('inline-add-category-btn');
+  if (inlineAddCategoryBtn) {
+    inlineAddCategoryBtn.addEventListener('click', () => {
+      const newId = 'custom_' + Date.now();
+      invoiceData.categories.push({
+        id: newId,
+        name: 'Untitled Category',
+        isPackage: false
+      });
+      invoiceData[newId] = [];
+      populateCategoryDropdown();
+      renderAllTables();
+      calculateTotals();
+      
+      // Auto-focus the new category title
+      setTimeout(() => {
+        const titleEl = document.querySelector(`.editable-category-title[data-cat-id="${newId}"]`);
+        if (titleEl) {
+          titleEl.focus();
+          // Select all text inside
+          document.execCommand('selectAll', false, null);
+        }
+      }, 50);
     });
   }
 
@@ -950,6 +1076,24 @@ function setupEventListeners() {
       logoutDialog.close();
       sessionStorage.removeItem('invoice_hub_authenticated');
       window.location.reload();
+    });
+  }
+  
+  // Delete Category Dialog Listeners
+  const deleteCategoryDialog = document.getElementById('delete-category-dialog');
+  const cancelDeleteCategoryBtn = document.getElementById('cancel-delete-category-btn');
+  const confirmDeleteCategoryBtn = document.getElementById('confirm-delete-category-btn');
+  
+  if (cancelDeleteCategoryBtn && deleteCategoryDialog) {
+    cancelDeleteCategoryBtn.addEventListener('click', () => {
+      categoryToDelete = null;
+      deleteCategoryDialog.close();
+    });
+  }
+  
+  if (confirmDeleteCategoryBtn) {
+    confirmDeleteCategoryBtn.addEventListener('click', () => {
+      performDeleteCategory();
     });
   }
 }

@@ -1837,3 +1837,23 @@ body.light-theme .confirm-dialog {
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
   border-color: rgba(0, 0, 0, 0.08);
 }
+
+.blank-template-hide {
+  display: none !important;
+}
+
+.edit-only-container {
+  display: none !important;
+}
+
+body.edit-active .edit-only-container {
+  display: flex !important;
+}
+
+.edit-only-inline {
+  display: none !important;
+}
+
+body.edit-active .edit-only-inline {
+  display: inline-block !important;
+}

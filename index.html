@@ -124,11 +124,14 @@
         <!-- LINE ITEMS -->
         <div class="invoice-body">
           
-          <!-- Category: Hardware -->
+          <!-- Category: Hardware Package -->
           <div class="invoice-section" id="section-hardware">
             <div class="section-header">
-              <h4 class="category-title">1. Hardware Package</h4>
-              <span class="custom-badge">Hardware Total: <span id="hardware-total-header">$2,400.00</span></span>
+              <h4 class="category-title editable-category-title" data-cat-id="hardware">1. Hardware Package</h4>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="custom-badge">Hardware Total: <span id="hardware-total-header">$0.00</span></span>
+                <button class="btn-danger-outline print-hidden edit-only-inline" onclick="deleteCategory('hardware')" title="Delete Category" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">🗑️</button>
+              </div>
             </div>
             <table class="items-table">
               <thead>
@@ -152,8 +155,11 @@
           <!-- Category: Professional Services -->
           <div class="invoice-section" id="section-services">
             <div class="section-header">
-              <h4 class="category-title">2. Professional Services</h4>
-              <span class="custom-badge">Services Total: <span id="services-total-header">$2,200.00</span></span>
+              <h4 class="category-title editable-category-title" data-cat-id="services">2. Professional Services</h4>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="custom-badge">Services Total: <span id="services-total-header">$0.00</span></span>
+                <button class="btn-danger-outline print-hidden edit-only-inline" onclick="deleteCategory('services')" title="Delete Category" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">🗑️</button>
+              </div>
             </div>
             <table class="items-table">
               <thead>
@@ -170,11 +176,14 @@
             </table>
           </div>
 
-          <!-- Category: Additional Support -->
+          <!-- Category: Support & Configuration -->
           <div class="invoice-section" id="section-support">
             <div class="section-header">
-              <h4 class="category-title">3. Additional Support &amp; Configuration</h4>
-              <span class="custom-badge">Support Total: <span id="support-total-header">$240.00</span></span>
+              <h4 class="category-title editable-category-title" data-cat-id="support">3. Additional Support & Configuration</h4>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="custom-badge">Support Total: <span id="support-total-header">$0.00</span></span>
+                <button class="btn-danger-outline print-hidden edit-only-inline" onclick="deleteCategory('support')" title="Delete Category" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">🗑️</button>
+              </div>
             </div>
             <table class="items-table">
               <thead>
@@ -194,8 +203,11 @@
           <!-- Category: Software Subscriptions -->
           <div class="invoice-section" id="section-software">
             <div class="section-header">
-              <h4 class="category-title">4. Software Subscription (30-Day Promotional Offer)</h4>
-              <span class="custom-badge promo-badge">30 Days Promo Active</span>
+              <h4 class="category-title editable-category-title" data-cat-id="software">4. Software Subscription (30-Day Promotional Offer)</h4>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="custom-badge promo-badge">30 Days Promo Active</span>
+                <button class="btn-danger-outline print-hidden edit-only-inline" onclick="deleteCategory('software')" title="Delete Category" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">🗑️</button>
+              </div>
             </div>
             <div class="promo-callout">
               <p><strong>Promotional Offer:</strong> The BrainyMed Application and Kiosk Software are provided free for the first 30 days. After 30 days, monthly billing will begin automatically: <strong>BrainyMed Application: $500/month</strong>, <strong>Kiosk Software: $299/month</strong>. Total recurring: <strong>$799/month</strong>.</p>
@@ -213,6 +225,13 @@
                 <!-- Software items will be rendered dynamically -->
               </tbody>
             </table>
+          </div>
+
+          <!-- Add Category Button -->
+          <div class="print-hidden edit-only-container" style="display: flex; justify-content: center; padding: 2rem 0; border-top: 1px dashed var(--border-panel); margin-top: 2rem;">
+            <button id="inline-add-category-btn" class="btn btn-secondary" style="border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 0.9rem;">
+              <span class="icon">＋</span> Add New Category
+            </button>
           </div>
 
         </div>
@@ -235,19 +254,19 @@
           <div class="totals-section">
             <table class="totals-table">
               <tbody>
-                <tr>
+                <tr id="row-hardware">
                   <th>Hardware Package:</th>
                   <td id="subtotal-hardware">$2,400.00</td>
                 </tr>
-                <tr>
+                <tr id="row-services">
                   <th>Professional Services:</th>
                   <td id="subtotal-services">$2,200.00</td>
                 </tr>
-                <tr>
+                <tr id="row-support">
                   <th>Additional Support:</th>
                   <td id="subtotal-support">$240.00</td>
                 </tr>
-                <tr>
+                <tr id="row-software">
                   <th>Software Today (Discounted):</th>
                   <td id="subtotal-software">$0.00</td>
                 </tr>
@@ -494,6 +513,18 @@
             <!-- Dynamic versions render here -->
           </ul>
         </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Delete Category Confirmation Modal -->
+  <dialog id="delete-category-dialog" class="confirm-dialog">
+    <div class="confirm-content">
+      <h3 style="margin-bottom: 0.5rem; font-family: var(--font-title); font-size: 1.2rem;">Delete Category</h3>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">Are you sure you want to completely delete this category? All items inside will be lost.</p>
+      <div class="confirm-actions" style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <button id="cancel-delete-category-btn" class="btn btn-secondary">Cancel</button>
+        <button id="confirm-delete-category-btn" class="btn btn-primary" style="background: var(--accent-danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);">Delete</button>
       </div>
     </div>
   </dialog>

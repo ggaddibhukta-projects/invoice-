@@ -204,7 +204,7 @@ function renderHardwareTable() {
       <td class="text-right"><em>Included</em></td>
       <td class="col-action print-hidden">
         <button class="btn-discount-toggle ${isDisc ? 'active' : ''}" title="Toggle Discount" onclick="toggleDiscount('hardware', ${index})">🏷️</button>
-        <button class="btn-danger-outline" onclick="deleteItem('hardware', ${index})">🗑️</button>
+        <button class="btn-danger-outline" onclick="deleteItem('hardware', ${index})"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
       </td>
     `;
     hardwareBody.appendChild(tr);
@@ -249,7 +249,7 @@ function renderServicesTable() {
       <td class="text-right">${amountHtml}</td>
       <td class="col-action print-hidden">
         <button class="btn-discount-toggle ${isDisc ? 'active' : ''}" title="Toggle Discount" onclick="toggleDiscount('services', ${index})">🏷️</button>
-        <button class="btn-danger-outline" onclick="deleteItem('services', ${index})">🗑️</button>
+        <button class="btn-danger-outline" onclick="deleteItem('services', ${index})"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
       </td>
     `;
     servicesBody.appendChild(tr);
@@ -291,7 +291,7 @@ function renderSupportTable() {
       <td class="text-right">${amountHtml}</td>
       <td class="col-action print-hidden">
         <button class="btn-discount-toggle ${isDisc ? 'active' : ''}" title="Toggle Discount" onclick="toggleDiscount('support', ${index})">🏷️</button>
-        <button class="btn-danger-outline" onclick="deleteItem('support', ${index})">🗑️</button>
+        <button class="btn-danger-outline" onclick="deleteItem('support', ${index})"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
       </td>
     `;
     supportBody.appendChild(tr);
@@ -335,7 +335,7 @@ function renderSoftwareTable() {
       <td class="text-right pink-text" style="color: var(--accent-pink)">${discountText}</td>
       <td class="col-action print-hidden">
         <button class="btn-discount-toggle ${isDisc ? 'active' : ''}" title="Toggle Discount" onclick="toggleDiscount('software', ${index})">🏷️</button>
-        <button class="btn-danger-outline" onclick="deleteItem('software', ${index})">🗑️</button>
+        <button class="btn-danger-outline" onclick="deleteItem('software', ${index})"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
       </td>
     `;
     softwareBody.appendChild(tr);
@@ -381,7 +381,7 @@ function renderCustomCategories() {
             <h4 class="category-title editable-category-title" data-cat-id="${cat.id}" contenteditable="${isEditMode}">${cat.name}</h4>
             <div style="display: flex; align-items: center; gap: 1rem;">
               <span class="custom-badge">${cat.name.replace(/^\d+\.\s*/, '')} Total: <span id="${cat.id}-total-header">$0.00</span></span>
-              <button class="btn-danger-outline print-hidden edit-only-inline" onclick="deleteCategory('${cat.id}')" title="Delete Category" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">🗑️</button>
+              <button class="btn-danger-outline print-hidden edit-only-inline" onclick="deleteCategory('${cat.id}')" title="Delete Category" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
             </div>
           </div>
           <table class="items-table">
@@ -423,7 +423,7 @@ function renderCustomCategories() {
             <td class="text-right">${amountHtml}</td>
             <td class="col-action print-hidden">
               <button class="btn-discount-toggle ${isDisc ? 'active' : ''}" title="Toggle Discount" onclick="toggleDiscount('${cat.id}', ${index})">🏷️</button>
-              <button class="btn-danger-outline" onclick="deleteItem('${cat.id}', ${index})">🗑️</button>
+              <button class="btn-danger-outline" onclick="deleteItem('${cat.id}', ${index})"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
             </td>
           `;
           body.appendChild(tr);
@@ -1138,7 +1138,7 @@ function loadAndRenderVersions(searchQuery = '') {
             <span class="version-name">${ver.name}</span>
             <span class="version-time">${ver.timestamp}</span>
           </div>
-          <button class="btn-version-delete" title="Delete version" onclick="deleteVersion(${originalIdx}, event)">🗑️</button>
+          <button class="btn-version-delete" title="Delete version" onclick="deleteVersion(${originalIdx}, event)"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
         `;
         versionsList.appendChild(li);
       });
@@ -1163,7 +1163,7 @@ function loadAndRenderVersions(searchQuery = '') {
             <span class="version-name">${ver.name}</span>
             <span class="version-time">${ver.timestamp}</span>
           </div>
-          <button class="btn-version-delete" title="Delete draft" onclick="deleteVersion(${idx}, event)">🗑️</button>
+          <button class="btn-version-delete" title="Delete draft" onclick="deleteVersion(${idx}, event)"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
         `;
         sidebarVersionsList.appendChild(li);
       });

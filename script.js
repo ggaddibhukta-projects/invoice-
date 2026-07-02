@@ -76,6 +76,12 @@ const openSettingsBtn = document.getElementById('open-settings-btn');
 const closeSettingsBtn = document.getElementById('close-settings-btn');
 const saveCloseSettingsBtn = document.getElementById('save-close-settings-btn');
 
+// Drafts Hub Selectors
+const draftsHubDialog = document.getElementById('drafts-hub-dialog');
+const draftsHubBtn = document.getElementById('drafts-hub-btn');
+const closeDraftsHubBtn = document.getElementById('close-drafts-hub-btn');
+const draftsSearchInput = document.getElementById('drafts-search-input');
+
 // Editable sheet containers to save/load details
 const companyDetailsContainer = document.querySelector('.company-details');
 const clientDetailsContainer = document.querySelector('.client-details');
@@ -135,6 +141,7 @@ function init() {
   setupEventListeners();
   syncDatesFromInputs();
   loadAndRenderVersions();
+  initSecurity();
 }
 
 // Sync Dates from Inputs to Invoice Sheet
@@ -655,11 +662,11 @@ function setupEventListeners() {
     if (isDarkTheme) {
       bodyEl.classList.add('dark-theme');
       bodyEl.classList.remove('light-theme');
-      themeToggleBtn.querySelector('.btn-text').textContent = 'Light Mode';
+      themeToggleBtn.setAttribute('title', 'Switch to Light Mode');
     } else {
       bodyEl.classList.remove('dark-theme');
       bodyEl.classList.add('light-theme');
-      themeToggleBtn.querySelector('.btn-text').textContent = 'Dark Mode';
+      themeToggleBtn.setAttribute('title', 'Switch to Dark Mode');
     }
   });
 
@@ -668,12 +675,10 @@ function setupEventListeners() {
     isEditMode = !isEditMode;
     if (isEditMode) {
       bodyEl.classList.add('edit-active');
-      modeToggleBtn.querySelector('.btn-text').textContent = 'Preview Mode';
-      modeToggleBtn.querySelector('.icon').textContent = '👁️';
+      modeToggleBtn.setAttribute('title', 'Switch to Preview Mode');
     } else {
       bodyEl.classList.remove('edit-active');
-      modeToggleBtn.querySelector('.btn-text').textContent = 'Edit Mode';
-      modeToggleBtn.querySelector('.icon').textContent = '✏️';
+      modeToggleBtn.setAttribute('title', 'Switch to Edit Mode');
     }
     renderAllTables();
   });
@@ -812,13 +817,33 @@ function setupEventListeners() {
     }
   }, true);
 
-  // Bind version save handler
-  saveVersionBtn.addEventListener('click', saveCurrentVersion);
-
   // Open Settings Hub Modal
   if (openSettingsBtn && settingsDialog) {
     openSettingsBtn.addEventListener('click', () => {
       settingsDialog.showModal();
+    });
+  }
+
+  // Open Drafts Hub Modal
+  if (draftsHubBtn && draftsHubDialog) {
+    draftsHubBtn.addEventListener('click', () => {
+      if (draftsSearchInput) draftsSearchInput.value = '';
+      loadAndRenderVersions();
+      draftsHubDialog.showModal();
+    });
+  }
+
+  // Close Drafts Hub Modal
+  if (closeDraftsHubBtn && draftsHubDialog) {
+    closeDraftsHubBtn.addEventListener('click', () => {
+      draftsHubDialog.close();
+    });
+  }
+
+  // Drafts Search Input
+  if (draftsSearchInput) {
+    draftsSearchInput.addEventListener('input', (e) => {
+      loadAndRenderVersions(e.target.value);
     });
   }
 
@@ -831,7 +856,27 @@ function setupEventListeners() {
 
   if (saveCloseSettingsBtn && settingsDialog) {
     saveCloseSettingsBtn.addEventListener('click', () => {
+      // Save PIN configurations
+      const inputEnablePin = document.getElementById('input-enable-pin');
+      const inputSecurityPin = document.getElementById('input-security-pin');
+      
+      if (inputEnablePin) {
+        localStorage.setItem('invoice_pin_enabled', inputEnablePin.checked ? 'true' : 'false');
+      }
+      if (inputSecurityPin) {
+        const pinVal = inputSecurityPin.value.trim();
+        if (pinVal.length === 4 && /^\d+$/.test(pinVal)) {
+          localStorage.setItem('invoice_security_pin', pinVal);
+        } else if (inputEnablePin && inputEnablePin.checked) {
+          alert("Security PIN must be a 4-digit number. Reverting to previous PIN.");
+          inputSecurityPin.value = localStorage.getItem('invoice_security_pin') || '1234';
+        }
+      }
+      
       settingsDialog.close();
+      
+      // Sync overlay state
+      initSecurity();
     });
   }
 
@@ -863,6 +908,50 @@ function setupEventListeners() {
       }
     });
   });
+
+  // Security tab inputs toggling
+  const inputEnablePin = document.getElementById('input-enable-pin');
+  if (inputEnablePin) {
+    inputEnablePin.addEventListener('change', (e) => {
+      togglePinSettingsVisibility(e.target.checked);
+    });
+  }
+
+  // Save Draft from sidebar
+  const saveDraftBtn = document.getElementById('save-draft-btn');
+  if (saveDraftBtn) {
+    saveDraftBtn.addEventListener('click', saveCurrentVersion);
+  }
+
+  // Home action
+  const homeBtn = document.getElementById('home-btn');
+  if (homeBtn) {
+    homeBtn.addEventListener('click', () => {
+      window.location.href = '/';
+    });
+  }
+
+  // Logout action
+  const logoutBtn = document.getElementById('logout-btn');
+  const logoutDialog = document.getElementById('logout-dialog');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  if (logoutBtn && logoutDialog) {
+    logoutBtn.addEventListener('click', () => {
+      logoutDialog.showModal();
+    });
+
+    cancelLogoutBtn.addEventListener('click', () => {
+      logoutDialog.close();
+    });
+
+    confirmLogoutBtn.addEventListener('click', () => {
+      logoutDialog.close();
+      sessionStorage.removeItem('invoice_hub_authenticated');
+      window.location.reload();
+    });
+  }
 }
 
 function getVersions() {
@@ -874,29 +963,68 @@ function saveVersions(versions) {
   localStorage.setItem('brainymed_invoice_versions', JSON.stringify(versions));
 }
 
-function loadAndRenderVersions() {
+function loadAndRenderVersions(searchQuery = '') {
   const versions = getVersions();
-  versionsList.innerHTML = '';
   
-  if (versions.length === 0) {
-    noVersionsText.style.display = 'block';
-    return;
+  // Filter versions if there's a search query
+  const lowerQuery = searchQuery.toLowerCase().trim();
+  const filteredVersions = versions.filter(ver => 
+    ver.name.toLowerCase().includes(lowerQuery) || 
+    ver.timestamp.toLowerCase().includes(lowerQuery)
+  );
+  
+  // Render to Settings Modal list
+  if (versionsList) {
+    versionsList.innerHTML = '';
+    if (filteredVersions.length === 0) {
+      if (noVersionsText) noVersionsText.style.display = 'block';
+    } else {
+      if (noVersionsText) noVersionsText.style.display = 'none';
+      filteredVersions.forEach((ver, idx) => {
+        // Need to find original index for deletion/loading
+        const originalIdx = versions.indexOf(ver);
+        const li = document.createElement('li');
+        li.className = 'version-item';
+        li.onclick = () => {
+          loadVersion(originalIdx);
+          if (draftsHubDialog && draftsHubDialog.open) draftsHubDialog.close();
+        };
+        li.innerHTML = `
+          <div class="version-info">
+            <span class="version-name">${ver.name}</span>
+            <span class="version-time">${ver.timestamp}</span>
+          </div>
+          <button class="btn-version-delete" title="Delete version" onclick="deleteVersion(${originalIdx}, event)">🗑️</button>
+        `;
+        versionsList.appendChild(li);
+      });
+    }
   }
-  
-  noVersionsText.style.display = 'none';
-  versions.forEach((ver, idx) => {
-    const li = document.createElement('li');
-    li.className = 'version-item';
-    li.onclick = () => loadVersion(idx);
-    li.innerHTML = `
-      <div class="version-info">
-        <span class="version-name">${ver.name}</span>
-        <span class="version-time">${ver.timestamp}</span>
-      </div>
-      <button class="btn-version-delete" title="Delete version" onclick="deleteVersion(${idx}, event)">🗑️</button>
-    `;
-    versionsList.appendChild(li);
-  });
+
+  // Render to Sidebar list
+  const sidebarVersionsList = document.getElementById('sidebar-versions-list');
+  const sidebarNoVersionsText = document.getElementById('sidebar-no-versions-text');
+  if (sidebarVersionsList) {
+    sidebarVersionsList.innerHTML = '';
+    if (versions.length === 0) {
+      if (sidebarNoVersionsText) sidebarNoVersionsText.style.display = 'block';
+    } else {
+      if (sidebarNoVersionsText) sidebarNoVersionsText.style.display = 'none';
+      versions.forEach((ver, idx) => {
+        const li = document.createElement('li');
+        li.className = 'version-item';
+        li.onclick = () => loadVersion(idx);
+        li.innerHTML = `
+          <div class="version-info">
+            <span class="version-name">${ver.name}</span>
+            <span class="version-time">${ver.timestamp}</span>
+          </div>
+          <button class="btn-version-delete" title="Delete draft" onclick="deleteVersion(${idx}, event)">🗑️</button>
+        `;
+        sidebarVersionsList.appendChild(li);
+      });
+    }
+  }
 }
 
 function saveCurrentVersion() {
@@ -994,6 +1122,145 @@ function deleteVersion(index, event) {
 
 window.deleteVersion = deleteVersion;
 window.loadVersion = loadVersion;
+
+// --- Security & PIN Authentication Logic ---
+let currentPinInput = '';
+
+function initSecurity() {
+  const loginOverlay = document.getElementById('login-overlay');
+  const inputEnablePin = document.getElementById('input-enable-pin');
+  const inputSecurityPin = document.getElementById('input-security-pin');
+
+  const pinEnabled = localStorage.getItem('invoice_pin_enabled') !== 'false';
+  const savedPin = localStorage.getItem('invoice_security_pin') || '1234';
+
+  if (inputEnablePin) {
+    inputEnablePin.checked = pinEnabled;
+    togglePinSettingsVisibility(pinEnabled);
+  }
+  if (inputSecurityPin) {
+    inputSecurityPin.value = savedPin;
+  }
+
+  const isAuthed = sessionStorage.getItem('invoice_hub_authenticated') === 'true';
+  if (!pinEnabled || isAuthed) {
+    if (loginOverlay) loginOverlay.classList.add('hidden');
+  } else {
+    if (loginOverlay) loginOverlay.classList.remove('hidden');
+    handleClear();
+    setupKeypadListeners();
+    setupPhysicalKeyboardListeners();
+  }
+}
+
+function togglePinSettingsVisibility(enabled) {
+  const pinSettingsInputs = document.getElementById('pin-settings-inputs');
+  if (pinSettingsInputs) {
+    pinSettingsInputs.style.display = enabled ? 'flex' : 'none';
+  }
+}
+
+function handlePinInput(digit) {
+  if (currentPinInput.length >= 4) return;
+  currentPinInput += digit;
+  updatePinDots();
+  hideError();
+
+  if (currentPinInput.length === 4) {
+    setTimeout(verifyPIN, 250);
+  }
+}
+
+function handleBackspace() {
+  if (currentPinInput.length === 0) return;
+  currentPinInput = currentPinInput.slice(0, -1);
+  updatePinDots();
+  hideError();
+}
+
+function handleClear() {
+  currentPinInput = '';
+  updatePinDots();
+  hideError();
+}
+
+function updatePinDots() {
+  const dots = document.querySelectorAll('.pin-dot');
+  dots.forEach((dot, idx) => {
+    if (idx < currentPinInput.length) {
+      dot.classList.add('filled');
+    } else {
+      dot.classList.remove('filled');
+    }
+  });
+}
+
+function showError() {
+  const errorMsg = document.getElementById('login-error-msg');
+  const card = document.getElementById('login-card');
+  if (errorMsg) errorMsg.classList.add('visible');
+  if (card) {
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 400);
+  }
+}
+
+function hideError() {
+  const errorMsg = document.getElementById('login-error-msg');
+  if (errorMsg) errorMsg.classList.remove('visible');
+}
+
+function verifyPIN() {
+  const loginOverlay = document.getElementById('login-overlay');
+  const savedPin = localStorage.getItem('invoice_security_pin') || '1234';
+  if (currentPinInput === savedPin) {
+    sessionStorage.setItem('invoice_hub_authenticated', 'true');
+    if (loginOverlay) {
+      loginOverlay.classList.add('hidden');
+    }
+  } else {
+    showError();
+    currentPinInput = '';
+    setTimeout(updatePinDots, 200);
+  }
+}
+
+let keypadListenersSetup = false;
+function setupKeypadListeners() {
+  if (keypadListenersSetup) return;
+  const keypadButtons = document.querySelectorAll('.keypad-btn');
+  keypadButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.val;
+      if (val === 'clear') {
+        handleClear();
+      } else if (val === 'backspace') {
+        handleBackspace();
+      } else {
+        handlePinInput(val);
+      }
+    });
+  });
+  keypadListenersSetup = true;
+}
+
+let keyboardListenersSetup = false;
+function setupPhysicalKeyboardListeners() {
+  if (keyboardListenersSetup) return;
+  document.addEventListener('keydown', (e) => {
+    const loginOverlay = document.getElementById('login-overlay');
+    if (loginOverlay && !loginOverlay.classList.contains('hidden')) {
+      if (e.key >= '0' && e.key <= '9') {
+        handlePinInput(e.key);
+      } else if (e.key === 'Backspace') {
+        handleBackspace();
+      } else if (e.key === 'Escape') {
+        handleClear();
+      }
+    }
+  });
+  keyboardListenersSetup = true;
+}
 
 // Run setup
 window.onload = init;

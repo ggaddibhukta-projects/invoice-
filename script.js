@@ -181,6 +181,19 @@ function renderHardwareTable() {
     hardwareBody.appendChild(tr);
   });
   
+  if (isEditMode) {
+    const trAdd = document.createElement('tr');
+    trAdd.className = 'add-item-row print-hidden';
+    trAdd.innerHTML = `
+      <td colspan="4">
+        <button class="btn-add-item-inline" onclick="addNewItemInline('hardware')">
+          <span class="icon">＋</span> Add Item
+        </button>
+      </td>
+    `;
+    hardwareBody.appendChild(trAdd);
+  }
+  
   // Set Package Price Value
   hardwareTotalVal.textContent = formatCurrency(invoiceData.hardwarePackagePrice);
 }
@@ -212,6 +225,19 @@ function renderServicesTable() {
     `;
     servicesBody.appendChild(tr);
   });
+  
+  if (isEditMode) {
+    const trAdd = document.createElement('tr');
+    trAdd.className = 'add-item-row print-hidden';
+    trAdd.innerHTML = `
+      <td colspan="4">
+        <button class="btn-add-item-inline" onclick="addNewItemInline('services')">
+          <span class="icon">＋</span> Add Item
+        </button>
+      </td>
+    `;
+    servicesBody.appendChild(trAdd);
+  }
 }
 
 function renderSupportTable() {
@@ -241,6 +267,19 @@ function renderSupportTable() {
     `;
     supportBody.appendChild(tr);
   });
+  
+  if (isEditMode) {
+    const trAdd = document.createElement('tr');
+    trAdd.className = 'add-item-row print-hidden';
+    trAdd.innerHTML = `
+      <td colspan="4">
+        <button class="btn-add-item-inline" onclick="addNewItemInline('support')">
+          <span class="icon">＋</span> Add Item
+        </button>
+      </td>
+    `;
+    supportBody.appendChild(trAdd);
+  }
 }
 
 function renderSoftwareTable() {
@@ -272,6 +311,19 @@ function renderSoftwareTable() {
     `;
     softwareBody.appendChild(tr);
   });
+  
+  if (isEditMode) {
+    const trAdd = document.createElement('tr');
+    trAdd.className = 'add-item-row print-hidden';
+    trAdd.innerHTML = `
+      <td colspan="4">
+        <button class="btn-add-item-inline" onclick="addNewItemInline('software')">
+          <span class="icon">＋</span> Add Item
+        </button>
+      </td>
+    `;
+    softwareBody.appendChild(trAdd);
+  }
 }
 
 function renderCustomCategories() {
@@ -344,6 +396,19 @@ function renderCustomCategories() {
           `;
           body.appendChild(tr);
         });
+        
+        if (isEditMode) {
+          const trAdd = document.createElement('tr');
+          trAdd.className = 'add-item-row print-hidden';
+          trAdd.innerHTML = `
+            <td colspan="4">
+              <button class="btn-add-item-inline" onclick="addNewItemInline('${cat.id}')">
+                <span class="icon">＋</span> Add Item
+              </button>
+            </td>
+          `;
+          body.appendChild(trAdd);
+        }
       }
     }
   });
@@ -509,6 +574,43 @@ window.toggleDiscount = function(category, index) {
   item.isDiscounted = !item.isDiscounted;
   renderAllTables();
   calculateTotals();
+};
+
+// Add new item inline helper
+window.addNewItemInline = function(category) {
+  const newItem = {
+    id: Math.random().toString(36).substring(2, 9),
+    desc: 'New Item',
+    subDesc: '',
+    qty: 1,
+    rate: 0
+  };
+
+  if (category === 'software') {
+    newItem.isPromo = false;
+  }
+
+  if (!invoiceData[category]) {
+    invoiceData[category] = [];
+  }
+
+  invoiceData[category].push(newItem);
+  renderAllTables();
+  calculateTotals();
+
+  // Focus and select the description of the newly created item
+  setTimeout(() => {
+    const fields = document.querySelectorAll(`[data-cat="${category}"][data-prop="desc"]`);
+    if (fields.length > 0) {
+      const lastField = fields[fields.length - 1];
+      lastField.focus();
+      const range = document.createRange();
+      range.selectNodeContents(lastField);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }, 50);
 };
 
 // Setup DOM event listeners

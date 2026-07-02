@@ -1470,3 +1470,77 @@ body.light-theme .dialog-footer {
   border-color: rgba(0, 0, 0, 0.08);
   background: rgba(0, 0, 0, 0.01);
 }
+
+/* Inline Add Item Row & Button styling */
+.items-table tbody tr.add-item-row:hover {
+  background: transparent !important;
+}
+
+.add-item-row td {
+  padding: 0.75rem 1rem !important;
+  border-bottom: none !important;
+}
+
+.btn-add-item-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px dashed var(--border-panel);
+  color: var(--accent-indigo);
+  padding: 0.5rem 1.2rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.25rem;
+}
+
+.btn-add-item-inline:hover {
+  background: rgba(99, 102, 241, 0.08) !important;
+  border-color: var(--accent-indigo);
+  color: var(--accent-indigo);
+}
+
+body.dark-theme .btn-add-item-inline:hover {
+  background: rgba(99, 102, 241, 0.15) !important;
+}
+
+body.light-theme .btn-add-item-inline {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Invoice watermark style definitions */
+.invoice-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background-image: url('logo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.035; /* Subtle transparency */
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.dark-theme .invoice-watermark {
+  opacity: 0.025; /* Even softer for dark mode to prevent contrast issues */
+}
+
+@media print {
+  .invoice-watermark {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    opacity: 0.055 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

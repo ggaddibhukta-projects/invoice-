@@ -92,13 +92,22 @@
             <div class="invoice-title">INVOICE</div>
             <div class="meta-grid">
               <div class="meta-label">Invoice #</div>
-              <div class="meta-value highlight" id="invoice-no-val" contenteditable="true">BM-2026-0042</div>
+              <div class="meta-value highlight">
+                <span id="invoice-no-val" class="preview-only-inline">BM-2026-0042</span>
+                <input type="text" id="inline-invoice-no" class="edit-only-inline meta-date-input" value="BM-2026-0042">
+              </div>
 
               <div class="meta-label">Issue Date</div>
-              <div class="meta-value" id="invoice-date-val">Jul 2, 2026</div>
+              <div class="meta-value">
+                <span id="invoice-date-val" class="preview-only-inline">Jul 2, 2026</span>
+                <input type="date" id="inline-invoice-date" class="edit-only-inline meta-date-input" value="2026-07-02">
+              </div>
 
               <div class="meta-label">Due Date</div>
-              <div class="meta-value" id="due-date-val">Aug 1, 2026</div>
+              <div class="meta-value">
+                <span id="due-date-val" class="preview-only-inline">Aug 1, 2026</span>
+                <input type="date" id="inline-due-date" class="edit-only-inline meta-date-input" value="2026-08-01">
+              </div>
 
             </div>
           </div>

@@ -1857,3 +1857,26 @@ body.edit-active .edit-only-container {
 body.edit-active .edit-only-inline {
   display: inline-block !important;
 }
+
+.preview-only-inline {
+  display: inline-block;
+}
+
+body.edit-active .preview-only-inline {
+  display: none !important;
+}
+
+.meta-date-input {
+  background: transparent;
+  border: 1px dashed var(--accent-primary);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: inherit;
+  padding: 2px 4px;
+  outline: none;
+}
+.meta-date-input:focus {
+  background: rgba(99, 102, 241, 0.05);
+}

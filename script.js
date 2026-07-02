@@ -151,11 +151,22 @@ function syncDatesFromInputs() {
   const invoiceDate = new Date(sidebarInvoiceDate.value);
   const dueDate = new Date(sidebarDueDate.value);
   
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  const options = { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' };
   
   sheetInvoiceDate.textContent = invoiceDate.toLocaleDateString('en-US', options);
   sheetDueDate.textContent = dueDate.toLocaleDateString('en-US', options);
-  sheetInvoiceNo.textContent = sidebarInvoiceNo.value;
+  // Only sync to sheet if it's not currently being edited
+  if (document.activeElement !== sheetInvoiceNo) {
+    sheetInvoiceNo.textContent = sidebarInvoiceNo.value;
+  }
+
+  // Sync the inline edit inputs
+  const inlineInvoiceNo = document.getElementById('inline-invoice-no');
+  const inlineInvoiceDate = document.getElementById('inline-invoice-date');
+  const inlineDueDate = document.getElementById('inline-due-date');
+  if (inlineInvoiceNo) inlineInvoiceNo.value = sidebarInvoiceNo.value;
+  if (inlineInvoiceDate) inlineInvoiceDate.value = sidebarInvoiceDate.value;
+  if (inlineDueDate) inlineDueDate.value = sidebarDueDate.value;
 }
 
 // Render dynamic tables
@@ -827,6 +838,22 @@ function setupEventListeners() {
   sidebarInvoiceDate.addEventListener('change', syncDatesFromInputs);
   sidebarDueDate.addEventListener('change', syncDatesFromInputs);
 
+  // Sync inline edit inputs back to sidebar elements
+  const inlineInvoiceDate = document.getElementById('inline-invoice-date');
+  const inlineDueDate = document.getElementById('inline-due-date');
+  if (inlineInvoiceDate) {
+    inlineInvoiceDate.addEventListener('change', (e) => {
+      sidebarInvoiceDate.value = e.target.value;
+      syncDatesFromInputs();
+    });
+  }
+  if (inlineDueDate) {
+    inlineDueDate.addEventListener('change', (e) => {
+      sidebarDueDate.value = e.target.value;
+      syncDatesFromInputs();
+    });
+  }
+
   // Sync Payment details inputs to sheet
   inputShowPayment.addEventListener('change', (e) => {
     if (e.target.checked) {
@@ -859,9 +886,13 @@ function setupEventListeners() {
   syncPaymentText();
 
   // Sync sheet edit back to sidebar
-  sheetInvoiceNo.addEventListener('input', (e) => {
-    sidebarInvoiceNo.value = e.target.textContent;
-  });
+  const inlineInvoiceNo = document.getElementById('inline-invoice-no');
+  if (inlineInvoiceNo) {
+    inlineInvoiceNo.addEventListener('input', (e) => {
+      sidebarInvoiceNo.value = e.target.value;
+      syncDatesFromInputs();
+    });
+  }
 
   // Monitor sheet inline content edits
   document.getElementById('invoice-sheet').addEventListener('blur', (e) => {
